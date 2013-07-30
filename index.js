@@ -13,11 +13,12 @@ function queryengine(db) {
   return subindex(db);
 }
 
-function query(q) {
+function query() {
+  var q = [].slice.call(arguments);
   var candidates;
   var db = this;
   var stats = { indexHits: 0, dataHits: 0, matchHits: 0 };
-  var indexStream = db.query.engine.query.apply(db, [].slice.apply(arguments));
+  var indexStream = db.query.engine.query.apply(db, q);
   if (indexStream !== null && indexStream instanceof Stream) {
     indexStream.on('data', function (data) {
       stats.indexHits++;
@@ -37,7 +38,7 @@ function query(q) {
   }
   var values = candidates.pipe(through(
     function write(data) {
-      if (db.query.engine.match(q, data)) {
+      if (db.query.engine.match.apply(db, q.concat(data))) {
         stats.matchHits++;
         this.queue(data);
       }
