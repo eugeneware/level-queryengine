@@ -38,7 +38,7 @@ function query() {
   }
   var values = candidates.pipe(through(
     function write(data) {
-      if (db.query.engine.match.apply(db, q.concat(data))) {
+      if (db.query.engine.match.apply(db, [data].concat(q))) {
         stats.matchHits++;
         this.queue(data);
       }
