@@ -12,6 +12,8 @@ Here is a list of the query plugins that are currently written and work with
 * [jsonquery-engine](https://github.com/eugeneware/jsonquery-engine) -
   [MongoDB query language](http://docs.mongodb.org/manual/reference/operator/)
   implemented for levelup **WITH** indexing!
+* [fulltext-engine](https://github.com/eugeneware/fulltext-engine) - Query your
+  levelup/leveldb engine using full text search phrases with full text indexing.
 * [path-engine](https://github.com/eugeneware/path-engine) - Simple javascript
   object "path" syntax query langauge implemented for levelup **WITH** indexing.
 
@@ -62,6 +64,38 @@ db.ensureIndex('*', 'pairs', pairs.index);
 db.batch(makeSomeData(), function (err) {
   // compound mongodb / jsonquery query syntax
   db.query({ $and: [ { tags: 'tag1' }, { num: { $lt: 100 } } ] })
+    .on('data', console.log)
+    .on('stats', function (stats) {
+      // stats contains the query statistics in the format
+      //  { indexHits: 1, dataHits: 1, matchHits: 1 });
+    });
+});
+```
+
+Example Usage with the [fulltext-engine](https://github.com/eugeneware/fulltext-engine):
+
+``` js
+var levelQuery = require('level-queryengine'),
+    fulltextEngine = require('fulltext-engine'),
+    levelup = require('levelup'),
+    db = levelQuery(levelup('my-db'));
+
+db.query.use(fulltextEngine());
+
+// index the properties you want (the 'doc' property on objects in this case):
+db.ensureIndex('doc', 'fulltext', fulltextEngine.index());
+
+db.batch(makeSomeData(), function (err) {
+  // will find all objects where 'my' and 'query' are present
+  db.query('doc', 'my query')
+    .on('data', console.log)
+    .on('stats', function (stats) {
+      // stats contains the query statistics in the format
+      //  { indexHits: 1, dataHits: 1, matchHits: 1 });
+    });
+
+  // will find all objects where 'my' OR 'query' are present
+  db.query('doc', 'my query', 'or')
     .on('data', console.log)
     .on('stats', function (stats) {
       // stats contains the query statistics in the format
@@ -129,7 +163,7 @@ A `queryEngine` plugin is simply an object that returns the following functions:
   must return an index stream (of indexes - see [subindex](https://github.com/eugeneware/subindex))
   if indexes can be used OR `null` if no indexes can be used and a full levelup
   database "table" scan will commence instead.
-* `match(query, objectToMatch)` (function) - a function that will be used
+* `match(objectToMatch, query)` (function) - a function that will be used
   as a final filter on the object stream generated. This function must return
   `true` if the `objectToMatch` matches the `query` passed to it.
   If an index creates some false positives then this function is responsible
