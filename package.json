@@ -33,6 +33,6 @@
   "dependencies": {
     "unique-stream": "0.0.2",
     "through": "~2.3.4",
-    "subindex": "0.0.4"
+    "subindex": "0.0.5"
   }
 }
