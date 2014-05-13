@@ -4,8 +4,6 @@ A generic pluggable query-engine system (that supports indexes) for levelup/leve
 
 Using this architecture you can query your levelup database using your own query langauge with **full index support**.
 
-[![build status](https://secure.travis-ci.org/eugeneware/level-queryengine.png)](http://travis-ci.org/eugeneware/level-queryengine)
-
 ## Query languages currently supported
 
 Here is a list of the query plugins that are currently written and work with
