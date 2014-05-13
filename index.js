@@ -5,18 +5,18 @@ var Stream = require('stream'),
 
 module.exports = queryengine;
 function queryengine(db) {
+  db = subindex(db);
   if (!db.query) {
-    db.query = query.bind(db);
-    db.query.use = use.bind(db);
+    db.query = query.bind(null, db);
+    db.query.use = use.bind(null, db);
   }
 
-  return subindex(db);
+  return db;
 }
 
-function query() {
-  var q = [].slice.call(arguments);
+function query(db) {
+  var q = [].slice.call(arguments, 1);
   var candidates;
-  var db = this;
   var stats = { indexHits: 0, dataHits: 0, matchHits: 0 };
   var indexStream = db.query.engine.query.apply(db, q);
   if (indexStream !== null && indexStream instanceof Stream) {
@@ -25,7 +25,7 @@ function query() {
     });
     candidates = indexStream
       .pipe(unique(keyfn))
-      .pipe(createValueStream.call(db))
+      .pipe(createValueStream.call(null, db))
       .on('data', function (data) {
         stats.dataHits++;
       });
@@ -50,8 +50,7 @@ function query() {
   return values;
 }
 
-function use(queryEngine) {
-  var db = this;
+function use(db, queryEngine) {
   db.query.engine = queryEngine;
 }
 
@@ -59,8 +58,7 @@ function keyfn(index) {
   return index.key[index.key.length - 1];
 }
 
-function createValueStream() {
-  var db = this;
+function createValueStream(db) {
   var s = new Stream();
   s.readable = true;
   s.writable = true;
