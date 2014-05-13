@@ -31,8 +31,8 @@
     "mocha": "^1.18.2"
   },
   "dependencies": {
-    "unique-stream": "0.0.4",
+    "unique-stream": "0.0.5",
     "through": "~2.3.4",
-    "subindex": "0.0.5"
+    "subindex": "^1.0.0"
   }
 }
