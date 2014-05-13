@@ -1,6 +1,6 @@
 {
   "name": "level-queryengine",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "Search levelup/leveldb instances with pluggable query engines and pluggable indexing schemes.",
   "main": "index.js",
   "scripts": {
